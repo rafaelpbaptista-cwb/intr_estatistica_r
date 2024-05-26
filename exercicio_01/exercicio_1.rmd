@@ -9,6 +9,7 @@ knitr::opts_chunk$set(echo = FALSE)
 
 library(kableExtra)
 library(dplyr)
+library(ggplot2)
 ```
 
 # Descrição do dataset
@@ -37,3 +38,28 @@ summary(dados_exercicios) %>%
     kbl() %>%
     kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 ```
+
+# Análise variáveis qualitativas
+## Gênero
+```{r}
+# Calcular os valores percentuais
+dados_relativo_genero <- round(prop.table(table(dados_exercicios$Gender)) * 100, 1)
+
+# Criar o gráfico de barras
+barplot_genero <- barplot(dados_relativo_genero, xlab = "Gêneros", ylab = "%", ylim = c(0, 100))
+
+# Adicionar os valores percentuais nas barras
+text(x = barplot_genero, y = dados_relativo_genero + 5, labels = paste0(dados_relativo_genero, "%"), col = "black", cex = 1)
+```
+
+## Ocupação
+```{r}
+dados_relativo_ocupacao <- sort(round(prop.table(table(dados_exercicios$Occupation)) * 100, 1), decreasing = TRUE)
+
+# Criar o gráfico de barras
+barplot_ocupacao <- barplot(dados_relativo_ocupacao, xlab = "Ocupação", ylab = "%", ylim = c(0, 30))
+
+# Adicionar os valores percentuais nas barras
+text(x = barplot_ocupacao, y = dados_relativo_ocupacao + 5, labels = paste0(dados_relativo_ocupacao, "%"), col = "black", cex = 1)
+```
+
