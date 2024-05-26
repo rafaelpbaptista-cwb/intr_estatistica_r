@@ -1,0 +1,17 @@
+# Leitura do dataset
+```{r}
+dados_exercicio <- read.csv("C:/Ambiente_desenvolvimento/Introdução a R e estatistica/exercicio_01/dados_exercicio.csv")
+
+summary(dados_exercicio)
+
+round(prop.table(table(dados_exercicio$Gender)) * 100, 1)
+
+sort(round(prop.table(table(dados_exercicio$Occupation)) * 100, 1))
+```
+
+# Qualidade do sono
+```{r}
+qualidade_sono <- round(prop.table(table(dados_exercicio$Stress.Level)) * 100, 1)
+qualidade_sono
+sum(qualidade_sono[c('7','8')])
+```

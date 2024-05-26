@@ -1,0 +1,75 @@
+```{r}
+require("ggplot2")
+dados <- diamonds
+```
+
+## Avaliação de duas variáveis qualitativas
+### Tabelas de frequencia
+```{r}
+freq_abs <- table(dados$cut, dados$clarity)
+
+freq_filtrado1 <- freq_abs[1, 4]
+
+freq_filtrado2 <- freq_abs["Premium", "IF"]
+
+freq_rel <- round(prop.table(freq_abs, margin = 1) * 100, 1)
+```
+
+```{r}
+library("readxl")
+
+veiculos <- read_excel("veiculos.xls")
+
+veiculos$proc <- factor(veiculos$proc, levels = c("Nacional", "Importado"))
+
+str(veiculos)
+
+plot(veiculos$motor, veiculos$comp, xlab = "Pot. do Motor", ylab = "Comprimento", main = "Gráfico de dispersão de pot. do motor vs comprimento")
+
+boxplot(veiculos$motor, main = "Potência do Motor")
+boxplot(veiculos$comp, main = "Comprimento do Motor")
+
+cor(veiculos$motor, veiculos$comp, method = "pearson")
+```
+
+### Uma variável qualitativa e uma quantitativa
+```{r}
+tapply(veiculos$motor, veiculos$proc, summary, main = "Potencia motor")
+
+boxplot(veiculos$motor ~ veiculos$proc,
+    ylab = "Potência motor", xlab = "Procedência"
+)
+```
+
+### Gráfico de dispersão considerando var. qualitativa
+```{r}
+plot(
+    x = veiculos$motor,
+    y = veiculos$preco,
+    pch = as.numeric(veiculos$proc),
+    col = veiculos$proc
+)
+
+legend("topleft",
+    legend = c("Nacional", "Importado"),
+    pch = c(1, 2),
+    col = c("black", "red")
+)
+
+require("ggplot2")
+ggplot2::ggplot(data = veiculos, aes(x = motor, y = preco)) +
+    geom_point() +
+    facet_wrap(~proc)
+
+round(cor(veiculos[, 2:4]), 1)
+```
+
+## Avaliação mais de 2 var qualitativa
+```{r}
+require("stats")
+
+freq_abs_diamond <- stats::ftable(diamonds$cut, diamonds$clarity, diamonds$color)
+freq_abs_diamond
+
+round(prop.table(freq_abs_diamond) * 100, 1)
+```

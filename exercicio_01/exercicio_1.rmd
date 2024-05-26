@@ -1,0 +1,39 @@
+---
+title: Análise exploratório dataset  **dados_execicios.csv**
+author: Rafael De Pauli Baptista
+date: 25/05/2024
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(kableExtra)
+library(dplyr)
+```
+
+# Descrição do dataset
+## Visualização
+```{r}
+dados_exercicios <- read.csv("dados_exercicio.csv") %>% select(
+    Gender, Age, Occupation, Sleep.Duration, Quality.of.Sleep, Physical.Activity.Level,
+    Stress.Level, BMI.Category, Heart.Rate, Daily.Steps, Sleep.Disorder
+)
+dados_exercicios <- dados_exercicios %>%
+    dplyr::mutate(BMI.Category = ifelse(dados_exercicios$BMI.Category == "Normal Weight", yes = "Normal", no = BMI.Category))
+
+dados_exercicios$Gender <- factor(dados_exercicios$Gender)
+dados_exercicios$Occupation <- factor(dados_exercicios$Occupation)
+dados_exercicios$BMI.Category <- factor(dados_exercicios$BMI.Category, levels = c("Normal", "Overweight", "Obese"))
+dados_exercicios$Sleep.Disorder <- factor(dados_exercicios$Sleep.Disorder)
+
+head(dados_exercicios) %>%
+    kbl() %>%
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
+```
+
+## Sumário
+```{r}
+summary(dados_exercicios) %>%
+    kbl() %>%
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
+```

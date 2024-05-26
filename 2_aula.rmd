@@ -1,0 +1,52 @@
+---
+Title: "Aula - 02"
+subtitle: "Tipos de análises para uma variável"
+date: "`r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+
+## Análise de dados para uma variável
+### Passo 1: obtenção dos dados
+```{r}
+# install.packages("ggplot2")
+require("ggplot2")
+
+dados <- diamonds
+# View(dados)
+str(dados)
+```
+
+### Passo 2: descrição dos dados
+```{r}
+summary(dados)
+```
+
+### Passo 3: descrição **variáveis qualitativas**
+```{r}
+freq_abs <- table(dados$cut)
+freq_rel <- round(prop.table(freq_abs) * 100, 2)
+
+gbarras <- barplot(freq_abs, xlab = "Qualidade do corte", ylab = "Freq. abs.", main = "Qualidade dos Cortes", ylim = c(0, 23000))
+
+text(gbarras, y = freq_abs + 900, labels = as.character(freq_abs))
+
+pie(freq_abs, labels = paste0(freq_rel, "%"), col = rainbow(length(freq_abs)), main = "Qualidade do Corte")
+legend("bottomright", levels(dados$cut), fill = rainbow(length(freq_abs)))
+```
+
+### Passo 4: decrição das variáveis **quantitativas**
+```{r}
+mean(dados$price)
+median(dados$price)
+quantile(dados$price)
+var(dados$price)
+sd(dados$price)
+
+hist(dados$price)
+boxplot(dados$price)
+title("Boxplot preço do diamante")
+```
