@@ -11,6 +11,7 @@ library(kableExtra)
 library(dplyr)
 library(ggplot2)
 library(tibble)
+require(stats)
 ```
 
 # Descrição do dataset
@@ -131,3 +132,92 @@ tabela_df_percent %>%
   add_header_above(c(" " = 1, "Qualidade do Sono" = ncol(tabela_df_percent) - 1))
 ```
 Explicação: Das pessoas com qualidade de sono igual a 9, 97,18% são mulheres.
+
+## Relação entre duas variáveis quantitativas
+```{r}
+plot(x = dados_exercicios$Quality.of.Sleep, y = dados_exercicios$Stress.Level, xlab = "Qualidade do sono", ylab = "Nível de estresse")
+
+# Calcular a correlação
+correlation_value <- cor(dados_exercicios$Quality.of.Sleep, dados_exercicios$Stress.Level, use = "complete.obs")
+
+# Converter para dataframe com cabeçalho
+correlation_df <- data.frame(Quality_of_Sleep_vs_Stress_Level = correlation_value)
+
+# Gerar a tabela formatada com kableExtra
+library(kableExtra)
+
+correlation_df %>%
+  kbl(col.names = c("Correlação entre qualidade de sono e nível de estresse")) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
+```
+
+## Relação entre uma variável qualitativa e quantitativa
+```{r}
+# Supondo que seu dataframe se chama dados_exercicios
+ggplot(dados_exercicios, aes(x = Occupation, y = Stress.Level)) +
+  geom_boxplot() +
+  labs(
+    title = "Grau de Estresse por Profissão",
+    x = "Profissão",
+    y = "Nível de Estresse"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+tabela_relacao_ocupacao_estresse <- round(prop.table(table(dados_exercicios$Occupation, dados_exercicios$Stress.Level), margin = 1) * 100, 1)
+
+tabela_df <- as.data.frame.matrix(tabela_relacao_ocupacao_estresse)
+# Adicionar símbolo de porcentagem aos valores
+tabela_df_percent <- tabela_df %>%
+  mutate_all(~ paste0(., "%") %>% gsub("\\.", ",", .))
+
+tabela_df_percent %>%
+  kbl() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
+  add_header_above(c("Relação entre Ocupação e Nível de Estresse por profissão" = 7), bold = TRUE)
+
+
+tabela_relacao_ocupacao_estresse <- round(prop.table(table(dados_exercicios$Occupation, dados_exercicios$Stress.Level), margin = 2) * 100, 1)
+
+tabela_df <- as.data.frame.matrix(tabela_relacao_ocupacao_estresse)
+# Adicionar símbolo de porcentagem aos valores
+tabela_df_percent <- tabela_df %>%
+  mutate_all(~ paste0(., "%") %>% gsub("\\.", ",", .))
+
+tabela_df_percent %>%
+  kbl() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
+  add_header_above(c("Relação entre Ocupação e Nível de Estresse comparado por profissão" = 7), bold = TRUE)
+
+tabela_relacao_idade_estresse <- round(prop.table(table(dados_exercicios$Age, dados_exercicios$Stress.Level), margin = 2) * 100, 1)
+
+tabela_df <- as.data.frame.matrix(tabela_relacao_idade_estresse)
+# Adicionar símbolo de porcentagem aos valores
+tabela_df_percent <- tabela_df %>%
+  mutate_all(~ paste0(., "%") %>% gsub("\\.", ",", .))
+
+tabela_df_percent %>%
+  kbl() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
+  add_header_above(c("Relação entre Idade e Nível de Estresse comparado por idade" = 7), bold = TRUE)
+```
+
+### Análise exploratória de várias variáveis
+
+## Partição e janelamento
+```{r}
+ggplot2::ggplot(dados_exercicios, aes(x = Age, y = Stress.Level)) +
+  geom_point() +
+  facet_wrap(~Occupation)
+```
+
+### Matrix de correlação
+```{r}
+tabela_correlacao <- cor(dados_exercicios[, c("Age", "Sleep.Duration", "Quality.of.Sleep", "Physical.Activity.Level", "Stress.Level", "Heart.Rate", "Daily.Steps")])
+tabela_correlacao %>%
+  kbl() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
+  add_header_above(c("Tabela de correlação" = 8), bold = TRUE)
+```
+```
+
