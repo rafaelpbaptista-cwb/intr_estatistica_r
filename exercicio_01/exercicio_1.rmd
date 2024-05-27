@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = FALSE)
 library(kableExtra)
 library(dplyr)
 library(ggplot2)
+library(tibble)
 ```
 
 # Descrição do dataset
@@ -54,12 +55,95 @@ text(x = barplot_genero, y = dados_relativo_genero + 5, labels = paste0(dados_re
 
 ## Ocupação
 ```{r}
+# Definir o tamanho da janela gráfica
+par(mar = c(12, 5, 2, 2)) # Ajustar as margens (baixo, esquerda, cima, direita)
+
+# Calcular e ordenar os valores percentuais
 dados_relativo_ocupacao <- sort(round(prop.table(table(dados_exercicios$Occupation)) * 100, 1), decreasing = TRUE)
 
 # Criar o gráfico de barras
-barplot_ocupacao <- barplot(dados_relativo_ocupacao, xlab = "Ocupação", ylab = "%", ylim = c(0, 30))
+barplot_ocupacao <- barplot(dados_relativo_ocupacao, ylab = "%", ylim = c(0, 30), las = 2)
 
 # Adicionar os valores percentuais nas barras
-text(x = barplot_ocupacao, y = dados_relativo_ocupacao + 5, labels = paste0(dados_relativo_ocupacao, "%"), col = "black", cex = 1)
+text(x = barplot_ocupacao, y = dados_relativo_ocupacao + 2, labels = paste0(dados_relativo_ocupacao, "%"), col = "black", cex = 1)
+
+# Adicionar o rótulo do eixo x em uma posição mais baixa
+mtext("Ocupação", side = 1, line = 6)
 ```
 
+# Análise variáveis quantitativas
+## Idade
+```{r}
+hist(dados_exercicios$Age, ylab = "Frequência", xlab = "Idade", main = "Histograma Idade")
+
+boxplot(dados_exercicios$Age)
+```
+
+# Análise exploratória de duas variáveis
+
+## Relação entre variável qualitativa e variável quantitativa
+```{r}
+tabela_cruzada_genero_qualidade_sono <- round(prop.table(table(dados_exercicios$Gender, dados_exercicios$Quality.of.Sleep)) * 100, 2)
+tabela_cruzada_com_totais <- addmargins(tabela_cruzada_genero_qualidade_sono)
+
+tabela_cruzada_com_totais %>%
+    kbl() %>%
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
+    add_header_above(c(" " = 1, "Qualidade do Sono" = ncol(tabela_cruzada_com_totais) - 1, " " = 1)) %>%
+    footnote(
+        general = "Os valores em percentual.",
+        general_title = "Nota:",
+        footnote_as_chunk = TRUE
+    )
+```
+Explicação: 18,45% das mulheres tem sono com qualidade igual a 9.
+
+```{r}
+tabela_cruzada_genero_qualidade_sono <- round(prop.table(table(dados_exercicios$Gender, dados_exercicios$Quality.of.Sleep), margin = 2) * 100, 2)
+tabela_cruzada_com_totais_genero_sono <- addmargins(tabela_cruzada_genero_qualidade_sono)
+
+tabela_cruzada_com_totais_genero_sono %>%
+    kbl() %>%
+    kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
+    add_header_above(c(" " = 1, "Qualidade do Sono" = ncol(tabela_cruzada_com_totais_genero_sono) - 1, " " = 1)) %>%
+    footnote(
+        general = "Os valores em percentual.",
+        general_title = "Nota:",
+        footnote_as_chunk = TRUE
+    )
+```
+Explicação: Das pessoas com qualidade de sono igual a 9, 97,18% são mulheres.
+
+```{r}
+# Calcular a tabela cruzada com proporções por coluna
+tabela_cruzada_genero_qualidade_sono <- round(prop.table(table(dados_exercicios$Gender, dados_exercicios$Quality.of.Sleep), margin = 2) * 100, 2)
+
+# Adicionar margens (totais)
+tabela_cruzada_com_totais <- addmargins(tabela_cruzada_genero_qualidade_sono)
+
+# Transformar a tabela em data frame para facilitar a manipulação
+tabela_df <- as.data.frame.matrix(tabela_cruzada_com_totais)
+
+# Adicionar símbolo de porcentagem aos valores
+tabela_df_percent <- tabela_df %>%
+  mutate_all(~ paste0(., "%"))
+
+# Adicionar a coluna de sumários como string para manter o formato
+tabela_df_percent <- tabela_df_percent %>%
+  rownames_to_column("Gender")
+
+# Remover a coluna "Sum"
+tabela_df_percent <- tabela_df_percent %>%
+  select(-Sum)
+
+# Criar a tabela cruzada com título, cabeçalho adicional e rodapé usando kableExtra
+tabela_df_percent %>%
+  kbl(caption = "Distribuição da Qualidade do Sono por Gênero") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
+  add_header_above(c(" " = 1, "Qualidade do Sono" = ncol(tabela_df_percent) - 1)) %>%
+  footnote(
+    general = "Os valores em percentual.",
+    general_title = "Nota:",
+    footnote_as_chunk = TRUE
+  )
+```
