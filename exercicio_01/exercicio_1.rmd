@@ -33,6 +33,7 @@ head(dados_exercicios) %>%
   kbl() %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 ```
+**Análise parcial**: Podemos verificar que o dataset traz informações sobre pessoas, suas profissões, nível de estresse e alguns indicadores de qualidade de vida.
 
 ## Sumário
 ```{r}
@@ -40,6 +41,12 @@ summary(dados_exercicios) %>%
   kbl() %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 ```
+**Análise parcial**:
+
+- Quantidade de homens e mullheres muito próximos;
+- A dispersão da idades das pessoas não é muito grande (entre 27 à 59 anos);
+- Média de tempo de sono é compatível com a média mundial;
+- A maioria das pessoas não tem disordem do sono.
 
 # Análise variáveis qualitativas
 ## Gênero
@@ -53,6 +60,8 @@ barplot_genero <- barplot(dados_relativo_genero, xlab = "Gêneros", ylab = "%", 
 # Adicionar os valores percentuais nas barras
 text(x = barplot_genero, y = dados_relativo_genero + 5, labels = paste0(dados_relativo_genero, "%"), col = "black", cex = 1)
 ```
+
+**Análise parcial**: Confirmação que o número de homens e mulheres são muito próximos
 
 ## Ocupação
 ```{r}
@@ -72,6 +81,8 @@ text(x = barplot_ocupacao, y = dados_relativo_ocupacao + 2, labels = paste0(dado
 mtext("Ocupação", side = 1, line = 6)
 ```
 
+**Análise parcial**: A maioria das pessoas são enfermeiros(as), médicos(as) ou engenheiros(as)
+
 # Análise variáveis quantitativas
 ## Idade
 ```{r}
@@ -79,6 +90,8 @@ hist(dados_exercicios$Age, ylab = "Frequência", xlab = "Idade", main = "Histogr
 
 boxplot(dados_exercicios$Age)
 ```
+
+**Análise parcial**: Histograma simétrico, indicando que a mediana e a média são próximas. Boxplot confirma a informação.
 
 # Análise exploratória de duas variáveis
 
@@ -109,7 +122,7 @@ tabela_df_percent %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
   add_header_above(c(" " = 1, "Qualidade do Sono" = (ncol(tabela_df_percent) - 1)))
 ```
-Explicação: 18,45% das mulheres tem sono com qualidade igual a 9.
+**Análise parcial**:  Entre as mulhere, 18,45% delas possuem uma qualidade de sono ótima (valor 9).
 
 ```{r}
 tabela_cruzada_genero_qualidade_sono <- round(prop.table(table(dados_exercicios$Gender, dados_exercicios$Quality.of.Sleep), margin = 2) * 100, 2)
@@ -131,7 +144,7 @@ tabela_df_percent %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
   add_header_above(c(" " = 1, "Qualidade do Sono" = ncol(tabela_df_percent) - 1))
 ```
-Explicação: Das pessoas com qualidade de sono igual a 9, 97,18% são mulheres.
+**Análise parcial**:  Das pessoas qe possuem uma qualidade de sono ótima, 97,18% são mulheres.
 
 ## Relação entre duas variáveis quantitativas
 ```{r}
@@ -150,6 +163,7 @@ correlation_df %>%
   kbl(col.names = c("Correlação entre qualidade de sono e nível de estresse")) %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 ```
+**Análise parcial**: Conseguimos perceber que a qualidade do sono e o nível de estresse possuem uma relação forte.
 
 ## Relação entre uma variável qualitativa e quantitativa
 ```{r}
@@ -201,6 +215,13 @@ tabela_df_percent %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
   add_header_above(c("Relação entre Idade e Nível de Estresse comparado por idade" = 7), bold = TRUE)
 ```
+**Análise parcial**: 
+
+- Percebemos que o nível de estresse da profissão enfermeiro(a) possuem um variabilidade bem grande;
+  - Existe extremos nessa profissão: ou a pessoa possui um nível de estresse bem baixo ou bem alto.
+- Considerando a quantidade de cientistas, podemos perceber que essa profissão possui um nível de estresse elevado;
+- Engenheiros possuem um nível de estresse baixo;
+- As idades mais estressantes são de 32, 33, 49 e 50 anos.
 
 ### Análise exploratória de várias variáveis
 
@@ -210,7 +231,7 @@ ggplot2::ggplot(dados_exercicios, aes(x = Age, y = Stress.Level)) +
   geom_point() +
   facet_wrap(~Occupation)
 ```
-
+**Análise parcial**: Percebemos que médicos(as) em início de carreira possuem um nível de estresse elevado.
 ### Matrix de correlação
 ```{r}
 tabela_correlacao <- cor(dados_exercicios[, c("Age", "Sleep.Duration", "Quality.of.Sleep", "Physical.Activity.Level", "Stress.Level", "Heart.Rate", "Daily.Steps")])
@@ -219,5 +240,10 @@ tabela_correlacao %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
   add_header_above(c("Tabela de correlação" = 8), bold = TRUE)
 ```
-```
+**Análise parcial**: 
+
+- Qualidade e Duração do Sono têm uma correlação positiva forte entre si, indicando que mais horas de sono estão associadas a uma melhor qualidade do sono.
+- Nível de Estresse tem correlações negativas fortes com qualidade e duração do sono, indicando que mais estresse está associado a pior qualidade e menor duração do sono.
+- Frequência Cardíaca está moderadamente correlacionada com nível de estresse e qualidade do sono, sugerindo que maior estresse e pior qualidade do sono estão associados a uma maior frequência cardíaca.
+- Nível de Atividade Física e Passos Diários têm uma correlação positiva moderada, indicando que mais atividade física está associada a mais passos diários.
 
