@@ -247,3 +247,30 @@ tabela_correlacao %>%
 - Frequência Cardíaca está moderadamente correlacionada com nível de estresse e qualidade do sono, sugerindo que maior estresse e pior qualidade do sono estão associados a uma maior frequência cardíaca.
 - Nível de Atividade Física e Passos Diários têm uma correlação positiva moderada, indicando que mais atividade física está associada a mais passos diários.
 
+# Conclusão da Análise Exploratória
+
+Após realizar uma análise exploratória dos dados disponíveis, podemos destacar os seguintes pontos principais:
+
+1. Qualidade do Sono e Nível de Estresse
+
+Observamos uma forte correlação negativa entre a qualidade do sono e o nível de estresse. Isso indica que indivíduos com uma melhor qualidade de sono tendem a ter níveis de estresse mais baixos. Essa relação é fundamental para entender a importância do sono na regulação do estresse.
+
+2. Correlação entre Variáveis
+
+A matriz de correlação revelou outras relações interessantes. Por exemplo, a qualidade do sono também mostrou uma correlação positiva moderada com a duração do sono. Isso sugere que, além da qualidade, a quantidade de sono também é importante para o bem-estar dos indivíduos.
+
+3. Distribuição de Dados
+
+As distribuições das variáveis como idade, duração do sono e nível de estresse mostraram-se bastante variadas. Essas distribuições ajudam a identificar padrões e possíveis outliers que podem necessitar de uma análise mais aprofundada.
+
+4. Análise por Profissão
+
+A análise da relação entre ocupação e nível de estresse indicou que certas profissões apresentam níveis de estresse consistentemente mais altos. Por exemplo, profissões na área médica, como médicos e enfermeiros, mostraram níveis de estresse superiores em comparação com outras profissões.
+
+5. Recomendações para Intervenções
+
+Com base nos dados analisados, recomenda-se focar em intervenções que melhorem a qualidade e a duração do sono dos indivíduos, especialmente aqueles em profissões de alta demanda, para reduzir o estresse e melhorar o bem-estar geral.
+
+---
+
+Em resumo, a análise exploratória destaca a importância da qualidade e quantidade de sono na gestão do estresse e identifica profissões que podem se beneficiar de intervenções específicas para melhorar a saúde mental e física dos trabalhadores.
