@@ -1,0 +1,165 @@
+
+# Testes de Hipóteses: Teoria e Implementação em R
+
+## Introdução
+
+Os testes de hipóteses são fundamentais na estatística, usados para tomar decisões baseadas em dados amostrais. Eles permitem avaliar a validade de uma suposição sobre um parâmetro populacional. Este artigo detalha os conceitos teóricos dos testes de hipóteses e sua implementação prática na linguagem R, utilizando um estudo de caso real.
+
+## Estrutura dos Testes de Hipóteses
+
+### Hipótese Nula (\(H_0\)) e Hipótese Alternativa (\(H_1\))
+
+A hipótese nula (\(H_0\)) representa a afirmação que queremos testar. Geralmente, é uma afirmação de igualdade ou ausência de efeito. A hipótese alternativa (\(H_1\)) é a contraposição a \(H_0\) e representa a afirmação que queremos aceitar se \(H_0\) for rejeitada.
+
+Exemplo:
+- \(H_0\): A média dos diâmetros das pizzas da Eagle Boys é igual à média dos diâmetros das pizzas da Dominos.
+- \(H_1\): A média dos diâmetros das pizzas da Eagle Boys é maior que a média dos diâmetros das pizzas da Dominos.
+
+### Nível de Significância (\(lpha\)) e p-valor
+
+O nível de significância (\(lpha\)) é a probabilidade máxima de cometer um erro tipo I (rejeitar \(H_0\) quando ela é verdadeira). Valores comuns são 0,01 e 0,05. O p-valor é a probabilidade de observar um valor estatístico igual ou mais extremo do que o valor observado, assumindo que \(H_0\) é verdadeira. Se o p-valor é menor que \(lpha\), rejeitamos \(H_0\).
+
+### Tipos de Erro
+
+- **Erro Tipo I**: Rejeitar \(H_0\) quando ela é verdadeira (probabilidade \(lpha\)).
+- **Erro Tipo II**: Não rejeitar \(H_0\) quando ela é falsa (probabilidade \(eta\)).
+
+## Tipos de Testes de Hipóteses
+
+### Testes Paramétricos
+
+**Teste t para Amostras Independentes**: Compara as médias de dois grupos independentes. Suposições incluem normalidade dos dados e homogeneidade das variâncias.
+
+**Teste t para Amostras Dependentes**: Compara as médias de dois grupos dependentes, como medições antes e depois em um mesmo grupo.
+
+**ANOVA (Análise de Variância)**: Compara as médias de três ou mais grupos independentes para verificar se pelo menos uma média difere das demais.
+
+### Testes Não-Paramétricos
+
+**Teste de Wilcoxon para Amostras Independentes**: Alternativa ao teste t quando as suposições de normalidade não são atendidas.
+
+**Teste de Kruskal-Wallis**: Alternativa ao ANOVA para comparar três ou mais grupos independentes sem assumir normalidade.
+
+**Teste de Qui-Quadrado de Independência**: Verifica a associação entre duas variáveis categóricas.
+
+## Implementação em R
+
+A seguir, mostramos como realizar a implementação prática dos conceitos discutidos utilizando a linguagem R.
+
+### Leitura e Preparação dos Dados
+
+Primeiro, carregamos os pacotes necessários e lemos o dataset fornecido.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r}
+# Carregar pacotes necessários
+library(dplyr)
+library(ggplot2)
+library(car)
+
+# Ler o dataset
+data <- read.csv("C:/Ambiente_desenvolvimento/intr_estatistica_r/aula_7/pizzasize.csv")
+
+# Visualizar os primeiros registros
+head(data)
+```
+
+### Análise Descritiva
+
+Realizamos uma análise descritiva dos dados para entender as distribuições e calcular estatísticas básicas.
+
+```{r}
+
+data <- data %>% 
+  dplyr::mutate(tipo_massa = factor(
+    dplyr::case_when(CrustDescription %in% c('ClassicCrust', 'MidCrust') ~ 'Média',
+                     CrustDescription == 'ThinNCrispy' | CrustDescription == 'ThinCrust' ~ 'Fina',
+                     TRUE ~ 'Grossa'),
+    levels = c('Fina', 'Média', 'Grossa')),
+    sabor = factor(dplyr::case_when(Topping == 'SuperSupremo' | Topping == 'Supreme' ~ 'Supreme',
+                                    TRUE ~ Topping)),
+    marca = factor(Store, levels = c('EagleBoys', 'Dominos')))
+str(data)
+summary(data)
+
+# Análise descritiva dos diâmetros das pizzas por loja
+data %>% 
+  dplyr::group_by(Store) %>% 
+  dplyr::summarise(media_diametro = mean(Diameter),
+                   dp = sd(Diameter),
+                   qtde = dplyr::n()) %>% 
+  dplyr::ungroup()
+```
+
+### Visualização dos Dados
+
+Visualizamos a distribuição dos diâmetros utilizando box plots.
+
+```{r}
+# Box plot para comparação visual
+boxplot(data$Diameter ~ data$Store)
+```
+
+## Testes de Hipóteses: Exemplos Práticos
+
+### Teste t para Amostras Independentes
+
+Primeiro, verificamos as suposições de normalidade e homogeneidade das variâncias.
+
+```{r}
+# Verificar normalidade
+shapiro.test(data$Diameter[data$Store == "Dominos"])
+```
+**Interpretação:** Como  valor retornado é **p-value = 4.759e-10**, menor que **0.05**, **rejeitamos** a hipótese que o diâmetro das pizzas da loja Dominos segue uma 
+distribuição normal.
+
+```{r}
+shapiro.test(data$Diameter[data$Store == "EagleBoys"])
+```
+**Interpretação:** Como  valor retornado é **p-value = 0.001673**, menor que **0.05**, **rejeitamos** a hipótese que o diâmetro das pizzas da loja EagleBoys segue uma 
+distribuição normal.
+
+```{r}
+# Verificar homogeneidade das variâncias
+leveneTest(Diameter ~ marca, data = data)
+```
+**Interpretação:** Como o **p-valor = 2.568e-07** é menor que **0.05**, concluímos que **as variâncias dos grupos não são homogêneas**.
+
+Como as suposições **não** foram atendidas, não podemos aplicar o t.test para a hipótese em questão
+```r
+t.test(Diameter ~ Store, data = data, alternative = "greater")
+```
+
+## Estudo de Caso: Análise das Pizzas
+
+### Contexto
+
+A Eagle Boys, uma rede de pizzarias australiana, afirma que suas pizzas grandes são maiores que as da Dominos. Para testar essa afirmação, coletamos dados sobre os diâmetros das pizzas de ambas as redes.
+
+### Preparação dos Dados
+
+A preparação dos dados inclui padronização dos tipos de massa e sabores das pizzas para garantir comparabilidade justa.
+
+
+```{r}
+# Teste de Wilcoxon
+wilcox.test(Diameter ~ marca, data = data, alternative = "greater")
+```
+
+### Resultados
+
+Os resultados do teste de Wilcoxon indicam que o p-valor é inferior a 0,05, levando à rejeição da hipótese nula. Concluímos que as pizzas da Eagle Boys são, de fato, maiores que as da Dominos.
+
+## Conclusão
+
+Este artigo apresentou uma visão abrangente sobre testes de hipóteses, destacando tanto os aspectos teóricos quanto práticos, com ênfase na implementação em R. Utilizamos um estudo de caso real para consolidar o entendimento, demonstrando como preparar os dados, realizar análises descritivas e aplicar testes de hipóteses para tomar decisões informadas.
+
+## Referências
+
+- Bussab, W.D.O., & Morretin, P.A. (2013). Estatística Básica. São Paulo: Saraiva.
+- Aula de Estatística Básica e Introdução ao R, Profª. Dra. Natalia Giordani.
+- Montgomery, D.C., & Runger, G.C. (2014). Applied Statistics and Probability for Engineers. John Wiley & Sons.
+- Field, A. (2013). Discovering Statistics Using R. Sage Publications.

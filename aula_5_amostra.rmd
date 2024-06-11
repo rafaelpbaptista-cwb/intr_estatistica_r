@@ -1,0 +1,46 @@
+---
+title: Análise exploratório dataset  **dados_execicios.csv**
+author: Rafael De Pauli Baptista
+date: 25/05/2024
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r}
+require(MASS)
+
+dados <- birthwt
+head(dados)
+
+hist(dados$bwt)
+
+stats::qqnorm(dados$bwt, col = "green")
+stats::qqline(dados$bwt, col = "blue")
+
+require(car)
+car::qqPlot(dados$bwt, col.lines = "blue", col = "red")
+
+require(dplyr)
+
+dados <- dados %>% dplyr::mutate(peso_mae_kg = round(lwt*0.453))
+
+hist(dados$peso_mae_kg)
+
+dados <- dados %>% dplyr::mutate(peso_mae_kg_log = round(lwt*0.453),
+                                 log_pm = log(peso_mae_kg)) %>%
+                   dplyr::mutate(inv_neg_pm = -1/peso_mae_kg,
+                                 peso_padronizado_1 = scale(peso_mae_kg),
+                                 peso_normalizado = scales::rescale(peso_mae_kg))
+
+par(mfrow = c(1,2))
+hist(dados$peso_mae_kg_log)
+hist(dados$inv_neg_pm)
+hist(dados$peso_padronizado_1)
+hist(dados$peso_normalizado)
+```
+
+```{r}
+car::qqPlot(dados$inv_neg_pm, col.lines = "blue", col = "red", main = "Inversa negativa")
+```

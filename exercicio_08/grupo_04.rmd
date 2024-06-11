@@ -1,0 +1,89 @@
+---
+title: Exercício aula 08 resolução detalhamento veículos
+author: Rafael De Pauli Baptista, Vinícius Hayashi Abreu, Fernando Albani
+date: 11/06/2024
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# Entendimento inicial do dataset
+Segue informações gerais dos campos do dataset 
+```{r}
+data <- read.csv("C:/Ambiente_desenvolvimento/intr_estatistica_r/exercicio_08/CO2 Emissions_Canada.csv")
+
+summary(data)
+```
+
+# Gráficos para entendimento inicial
+
+## Bloxplot num. cilindros de todos os carros 
+```{r}
+boxplot(data$Cylinders)
+```
+
+**Interpretação:**: 
+
+- 1º quartil: 4 cilindros
+- 2º quartil ou mediana: 6 cilindros
+- 3º quartil: 6 cilindros
+- Máximo: 16 cilindros
+
+Gráfico detalha melhor as informações do item **Entendimento inicial do dataset**
+
+## Gráfico dispersão tamanho motor X litragem do motor
+```{r}
+require(dplyr)
+library(car)
+
+data_agr <- data %>%
+    dplyr::group_by(Cylinders, Fuel.Type) %>%
+    dplyr::summarise(
+        consumo_medio = mean(Fuel.Consumption.Comb..L.100.km.),
+        desvio_padrao = sd(Fuel.Consumption.Comb..L.100.km.),
+        qtde = dplyr::n()
+    ) %>%
+    dplyr::ungroup() %>%
+    dplyr::arrange(consumo_medio)
+
+data_agr
+```
+**Interpretação:** 
+
+- Para um mesmo tipo de combustível, quanto maior a quantidade de cilindros, maior o consumo_medio
+- O tipo mais econômico é o carro com **3 cilindros**, tipo de combustível **X**.
+- O tipo mais popular são os carros de **4 cilindros** e tipo de combustível **X**.
+
+## Diferença proporção carros automáticos da FORD e CHEVROLET
+```{r}
+data_agr_marca <- data %>%
+    dplyr::filter(Make %in% c("FORD", "CHEVROLET")) %>%
+    dplyr::mutate(manual = factor(dplyr::case_when(
+        Transmission %in% c("M5", "M6", "M7") ~ "Sim",
+        TRUE ~ "Não"
+    ), levels = c("Sim", "Não")), teste = 1)
+
+
+head(data_agr_marca)
+
+# Agrupar por marca e transmissão manual
+data_agr_marca <- data_agr_marca %>% 
+    dplyr::group_by(Make, manual) %>%
+    dplyr::summarise(count = n())
+
+# Filtrar para obter apenas os carros automáticos
+data_automaticos <- data_agr_marca %>%
+    dplyr::filter(manual == "Não")
+
+data_automaticos
+```
+
+## Verificar normalidade
+```{r}
+data_automaticos <- data_agr_marca %>%
+    dplyr::filter(manual == "Não")
+
+# Realizar o teste de Shapiro-Wilk
+shapiro.test(data_agr_marca$count[data_agr_marca$Make == "FORD"])
+```
