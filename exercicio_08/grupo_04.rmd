@@ -23,7 +23,7 @@ summary(data)
 boxplot(data$Cylinders)
 ```
 
-**Interpretação:**: 
+**Interpretação:**
 
 - 1º quartil: 4 cilindros
 - 2º quartil ou mediana: 6 cilindros
@@ -32,7 +32,7 @@ boxplot(data$Cylinders)
 
 Gráfico detalha melhor as informações do item **Entendimento inicial do dataset**
 
-## Gráfico dispersão tamanho motor X litragem do motor
+## Tabela tamanho motor X litragem do motor
 ```{r}
 require(dplyr)
 library(car)
@@ -62,28 +62,24 @@ data_agr_marca <- data %>%
     dplyr::mutate(manual = factor(dplyr::case_when(
         Transmission %in% c("M5", "M6", "M7") ~ "Sim",
         TRUE ~ "Não"
-    ), levels = c("Sim", "Não")), teste = 1)
-
-
-head(data_agr_marca)
-
-# Agrupar por marca e transmissão manual
-data_agr_marca <- data_agr_marca %>% 
-    dplyr::group_by(Make, manual) %>%
-    dplyr::summarise(count = n())
-
-# Filtrar para obter apenas os carros automáticos
-data_automaticos <- data_agr_marca %>%
-    dplyr::filter(manual == "Não")
-
-data_automaticos
+    ), levels = c("Sim", "Não")))
 ```
-
-## Verificar normalidade
+Quantidade **absoluta** de carros automáticos da FORD e CHEVROLET
 ```{r}
-data_automaticos <- data_agr_marca %>%
-    dplyr::filter(manual == "Não")
-
-# Realizar o teste de Shapiro-Wilk
-shapiro.test(data_agr_marca$count[data_agr_marca$Make == "FORD"])
+table(data_agr_marca$Make, data_agr_marca$manual)
 ```
+Quantidade **relativa** de carros automáticos da FORD e CHEVROLET
+```{r}
+round(prop.table(table(data_agr_marca$Make, data_agr_marca$manual))*100, 2)
+```
+Teste de proporção
+```{r}
+prop.test(table(data_agr_marca$Make, data_agr_marca$manual))
+```
+**Interpretação:** 
+
+- Hipótese Nula (H0): A proporção de carros automáticos é a mesma para as marcas FORD e CHEVROLET.
+- Hipótese Alternativa (H1): A proporção de carros automáticos não é a mesma para as marcas FORD e CHEVROLET.
+
+Com um valor p de 0.01182, que é menor do que o nível de significância comum de 0.05, rejeitamos a hipótese nula. 
+Isso indica que há uma diferença estatisticamente significativa na proporção de carros automáticos entre as marcas FORD e CHEVROLET.
