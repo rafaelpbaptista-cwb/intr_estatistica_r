@@ -97,7 +97,7 @@ plot(data_compact$Fuel.Consumption.Hwy..L.100.km., data_compact$CO2.Emissions.g.
 
 
 ```{r}
-par(mfrow = c(1,2))
+par(mfrow = c(1, 2))
 
 boxplot(data_compact$Fuel.Consumption.Hwy..L.100.km., main = "Consumo rodovia (Km/L)")
 boxplot(data_compact$CO2.Emissions.g.km., main = "Emissão CO2 gramas/Km")
@@ -111,3 +111,67 @@ cor(data_compact$Fuel.Consumption.Hwy..L.100.km., data_compact$CO2.Emissions.g.k
 ```
 **Interpretação:** O coeficiente de correlação entre **consumo Km/L** e **emissão CO2 grama/Km** é de **0,933**.
 Esse valor indica uma relação muito forte entre as duas variáveis, onde se uma aumenta, a outra aumenta também.
+
+# 4. Existe diferença de emissão CO2 nos carros tipo SUV-Small das marcas KIA, SUBARU e TOYOTA?
+
+```{r}
+data_co2 <- data %>%
+    filter(Vehicle.Class == "SUV - SMALL" & Make %in% c("KIA", "SUBARU", "TOYOTA"))
+
+shapiro.test(data_co2$CO2.Emissions.g.km.)
+```
+**Interpretação:** Avaliando os dados de emissão de CO2 dos veículos do tipo *SUV - SMALL* das marcas *KIA*, *SUBARU* e *TOYOTA*, 
+verificamos uma distribuição **normal** dos dados, levando em consideração o uso do método **Anova one-way** para a resolução do problema.
+
+```{r}
+car::leveneTest(CO2.Emissions.g.km. ~ Make, data = data_co2)
+```
+**Interpretação:** Um p-valor menor que 0.05 indica que há evidências estatísticas significativas para rejeitar a hipótese nula de que as variâncias entre os grupos são iguais. 
+Neste caso, com um p-valor de 0.001256, que é significativamente menor que 0.05, rejeitamos a hipótese nula. Isso indica que há uma diferença estatisticamente significativa nas 
+variâncias entre os grupos. Devido a esse levantamento, percebemos que não podemos usar o método **Anova one-way** para a resolução do problema.
+O método mais indicado para a resolução do problema é o **Teste de Kruskal-Wallis (ANOVA não paramétrica)**
+
+```{r}
+boxplot(CO2.Emissions.g.km. ~ Make, data = data_co2)
+```
+
+**Interpretação:**Gráfico de boxplot comparando os valores de emissão de CO2 dos dos veículos do tipo *SUV - SMALL* das marcas *KIA*, *SUBARU* e *TOYOTA*.
+Aparentemente há diferenças de emissão de CO2 entre os fabricantes.
+
+```{r}
+kruskal.test(CO2.Emissions.g.km. ~ Make, data = data_co2)
+```
+**Interpretação:** O teste de **kruskal** testa a hipótese H0 que as medinas de emissão de CO2 dos carros do tipo *SUV - SMALL* dos fabricantes em questão são iguais.
+Com o valor **p-value 1.372e-12** rejeitamos a hipótese H0. Desta forma verificamos que a média de emissão de CO2 entre os veículos do tipo *SUV - SMALL* das 
+marcas *KIA*, *SUBARU* e *TOYOTA* são diferentes.
+
+```{r}
+require(dunn.test)
+
+dunn.test(data_co2$CO2.Emissions.g.km., data_co2$Make, method = "bonferroni")
+```
+
+## Interpretação do Resultado do Teste de Comparações Múltiplas
+
+### Comparação de x por grupo (Bonferroni)
+
+#### Comparação SUBARU vs KIA:
+- **Valor p: 0.0000*** (significativo)
+   - O valor p é 0.0000, indicando que essa diferença é estatisticamente significativa ao nível de significância de 0.05.
+
+#### Comparação TOYOTA vs KIA:
+- **Valor p: 0.0000*** (significativo)
+   - O valor p é 0.0000, indicando que essa diferença é estatisticamente significativa ao nível de significância de 0.05.
+
+#### Comparação TOYOTA vs SUBARU:
+- **Valor p: 0.0286** (não significativo após ajuste de Bonferroni)
+   - O valor p é 0.0286, que é menor que 0.05, mas maior que o nível ajustado de 0.025 (0.05/2), então não é considerado estatisticamente significativo após o ajuste de Bonferroni.
+
+### Resumo
+- O teste de Kruskal-Wallis mostra que há uma diferença significativa nas medianas dos grupos.
+- As comparações múltiplas indicam que KIA tem diferenças significativas tanto com SUBARU quanto com TOYOTA.
+- A diferença entre TOYOTA e SUBARU não é significativa após o ajuste de Bonferroni.
+
+### Conclusão
+Rejeitamos a hipótese nula (H0) de que todas as medianas dos grupos são iguais, e concluímos que existem diferenças significativas entre alguns dos grupos. 
+Especificamente, KIA difere significativamente de SUBARU e TOYOTA, enquanto TOYOTA e SUBARU não diferem significativamente entre si após o ajuste de Bonferroni.
