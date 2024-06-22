@@ -90,7 +90,13 @@ data_compact <- data %>%
     filter(Vehicle.Class == "COMPACT") %>%
     select(Fuel.Consumption.Hwy..L.100.km., CO2.Emissions.g.km.)
 
-plot(data_compact$Fuel.Consumption.Hwy..L.100.km., data_compact$CO2.Emissions.g.km., xlab = "Consumo rodovia", ylab = "Emissão CO2", main = "Gráfico de dispersão consumo X emissão CO2")
+plot(data_compact$Fuel.Consumption.Hwy..L.100.km., data_compact$CO2.Emissions.g.km.,
+    xlab = "Consumo rodovia",
+    ylab = "Emissão CO2",
+    main = "Gráfico de dispersão consumo X emissão CO2"
+)
+
+abline(lm(data_compact$CO2.Emissions.g.km. ~ data_compact$Fuel.Consumption.Hwy..L.100.km.), col = "red")
 ```
 
 **Interpretação:** Olhando o gáfico de dispersão, podemos verificar algum relacionamento entre consumo e emissão de CO2
@@ -132,7 +138,12 @@ variâncias entre os grupos. Devido a esse levantamento, percebemos que não pod
 O método mais indicado para a resolução do problema é o **Teste de Kruskal-Wallis (ANOVA não paramétrica)**
 
 ```{r}
-boxplot(CO2.Emissions.g.km. ~ Make, data = data_co2)
+require(ggplot2)
+
+ggplot(data_co2, aes(x = Make, y = CO2.Emissions.g.km., fill = Make)) +
+  geom_boxplot() +
+  labs(title = "Emissões de CO2 por Marca (SUV - SMALL)", x = "Marca", y = "Emissões de CO2 (g/km)") +
+  theme_minimal()
 ```
 
 **Interpretação:**Gráfico de boxplot comparando os valores de emissão de CO2 dos dos veículos do tipo *SUV - SMALL* das marcas *KIA*, *SUBARU* e *TOYOTA*.

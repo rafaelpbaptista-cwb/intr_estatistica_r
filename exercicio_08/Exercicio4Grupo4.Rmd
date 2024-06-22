@@ -1,0 +1,88 @@
+---
+title: "Exercício 4"
+author: "Rafael De Pauli Baptista, Vinícius Hayashi Abreu, Fernando Albani"
+date: "16/06/2024"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+require(dplyr)
+require(ggplot2)
+require(car)
+require(dunn.test)
+```
+
+```{r}
+# Leitura do arquivo CSV
+dados <- read.csv("C:/Ambiente_desenvolvimento/intr_estatistica_r/exercicio_08/CO2 Emissions_Canada.csv")
+
+```
+```{r}
+# Exibir algumas informações sobre os dados
+head(dados)
+dim(dados)
+str(dados)
+summary(dados)
+print(names(dados))
+```
+```{r}
+# Filtragem dos dados para SUV-Small das marcas KIA, SUBARU e TOYOTA
+dados_exercio4 <- dados %>%
+  dplyr::filter(Vehicle.Class == 'SUV - SMALL' & Make %in% c('KIA', 'SUBARU', 'TOYOTA'))
+```
+```{r}
+# Ajustar os nomes das colunas para garantir que sejam válidos
+colnames(dados_exercio4) <- make.names(colnames(dados_exercio4))
+```
+```{r}
+# Verificar o nome exato da coluna de emissões de CO2
+col_name <- grep("CO2", colnames(dados_exercio4), value = TRUE)
+print(col_name)  # Imprime o nome da coluna relacionada a CO2 para confirmação
+```
+```{r}
+# Verificar os dados filtrados
+head(dados_exercio4)
+print(table(dados_exercio4$Make))
+```
+```{r}
+# Estatística descritiva
+estatisticas <- dados_exercio4 %>%
+  dplyr::group_by(Make) %>%
+  dplyr::summarise(
+    media = mean(get(col_name), na.rm = TRUE),
+    dp = sd(get(col_name), na.rm = TRUE),
+    min = min(get(col_name), na.rm = TRUE),
+    max = max(get(col_name), na.rm = TRUE),
+    qtde = dplyr::n()
+  ) %>% 
+  dplyr::ungroup()
+
+print(estatisticas)
+```
+```{r}
+# Aplicação do teste de Kruskal-Wallis
+kruskal_result <- kruskal.test(get(col_name) ~ Make, data = dados_exercio4)
+print(kruskal_result)
+```
+```{r}
+# Teste Post-Hoc de Dunn
+dunn_result <- dunn.test::dunn.test(dados_exercio4[[col_name]], dados_exercio4$Make, method = "bonferroni")
+print("Resultado do teste post-hoc de Dunn:")
+print(dunn_result)
+
+ggplot(dados_exercio4, aes(x = Make, y = get(col_name), fill = Make)) +
+  geom_boxplot() +
+  labs(title = "Emissões de CO2 por Marca (SUV - SMALL)", x = "Marca", y = "Emissões de CO2 (g/km)") +
+  theme_minimal()
+```
+```{r}
+# Gráfico dos resultados do teste post-hoc de Dunn
+# plot(dunn_result, main = "Resultados do teste post-hoc de Dunn")
+```
+**Interpretação:** 
+
+O resultado do teste de Kruskal-Wallis indica que há uma diferença significativa nas emissões de CO2 entre as marcas KIA, SUBARU e TOYOTA, uma vez que o valor p (1.372e-12) é muito menor que 0.05.
+
+Os resultados obtidos através do teste post-hoc de Dunn indicam que há diferenças significativas nas emissões de CO2 entre todas as três comparações de marcas (KIA vs. SUBARU, KIA vs. TOYOTA, e SUBARU vs. TOYOTA). Portanto, podemos concluir que as marcas KIA, SUBARU e TOYOTA têm emissões médias de CO2 significativamente diferentes para SUVs pequenos.
